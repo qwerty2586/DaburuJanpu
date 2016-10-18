@@ -1,59 +1,54 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
 
-public class MainMenuScreen implements Screen {
+/**
+ * Created by qwerty on 17. 10. 2016.
+ */
+
+public class SettingsScreen implements Screen {
 
 
     DaburuJanpu game;
     OrthographicCamera camera;
     Table table;
-    TextButton singlePlayerButton;
-    TextButton multiPlayerButton;
-    TextButton settingsButton;
+    TextButton saveButton;
+    TextButton backButton;
     Stage stage;
 
-    public MainMenuScreen(final DaburuJanpu game) {
+    public SettingsScreen(final DaburuJanpu game) {
         this.game = game;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
-        singlePlayerButton = new TextButton("Single player", game.skin);
-        multiPlayerButton = new TextButton("Multiplayer player", game.skin);
-        settingsButton = new TextButton("Settings", game.skin);
+        saveButton = new TextButton("Save", game.skin);
+        backButton = new TextButton("Back", game.skin);
 
-        singlePlayerButton.addListener( new ClickListener() {
+        backButton.addListener( new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new MainMenuScreen(game));
             }
         });
 
-        settingsButton.addListener( new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                game.setScreen(new SettingsScreen(game));
-            }
-        });
-
+        
 
 
         table = new Table();
         table.setFillParent(true);
-        table.add(singlePlayerButton).size( 300, 60 ).uniform().fill();
+        table.add(null).size( 300, 60 ).uniform().fill();
         table.row();
         table.add(multiPlayerButton).uniform().fill();
         table.row();
@@ -107,3 +102,4 @@ public class MainMenuScreen implements Screen {
 
     }
 }
+

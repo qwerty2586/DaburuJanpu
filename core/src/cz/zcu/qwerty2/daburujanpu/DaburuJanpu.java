@@ -1,19 +1,25 @@
 package cz.zcu.qwerty2.daburujanpu;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import cz.zcu.qwerty2.daburujanpu.screens.MainMenuScreen;
 
 public class DaburuJanpu extends Game {
 	public SpriteBatch batch;
 	public BitmapFont font;
+	public Skin skin;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
+		FileHandle skinFile = Gdx.files.internal("skin/uiskin.json");
+		skin = new Skin(skinFile);
 		setScreen(new MainMenuScreen(this));
 	}
 
