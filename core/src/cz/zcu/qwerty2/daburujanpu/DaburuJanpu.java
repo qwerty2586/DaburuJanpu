@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import cz.zcu.qwerty2.daburujanpu.screens.MainMenuScreen;
+import cz.zcu.qwerty2.daburujanpu.screens.SplashScreen;
 
 public class DaburuJanpu extends Game {
 	public SpriteBatch batch;
@@ -20,7 +20,7 @@ public class DaburuJanpu extends Game {
 		font = new BitmapFont();
 		FileHandle skinFile = Gdx.files.internal("skin/uiskin.json");
 		skin = new Skin(skinFile);
-		setScreen(new MainMenuScreen(this));
+		setScreen(new SplashScreen(this));
 	}
 
 	@Override

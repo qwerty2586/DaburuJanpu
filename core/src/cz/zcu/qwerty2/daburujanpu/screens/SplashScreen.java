@@ -1,65 +1,68 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
-/**
- * Created by qwerty on 9. 10. 2016.
- */
+import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
+
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+
+
 
 public class SplashScreen implements Screen {
 
-
-    int w = 0;
-    int h = 0;
-    int tw = 0;
-    int th = 0;
     OrthographicCamera camera = null;
     Texture fav = null;
-    SpriteBatch batch = null;
     Stage stage;
-    Game game;
+    DaburuJanpu game;
+    Image logoImage;
 
-    public SplashScreen(Game game) {
+    public SplashScreen(DaburuJanpu game) {
         this.game = game;
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 800, 480);
+
+        fav = new Texture(Gdx.files.internal("fav.png"));
+        stage = new Stage();
+        logoImage = new Image(fav);
+        logoImage.setPosition(stage.getWidth()/2-logoImage.getWidth()/2,stage.getHeight()/2-logoImage.getHeight()/2);
+
+
 
     }
 
     @Override
     public void show() {
-        fav = new Texture("fav.png");
-        stage = new Stage();
-
-        w = Gdx.graphics.getWidth();
-        h = Gdx.graphics.getHeight();
-        camera = new OrthographicCamera(w, h);
-        camera.position.set(w / 2, h / 2, 0);
-        camera.update();
-        tw = fav.getWidth();
-        th = fav.getHeight();
-
-        batch = new SpriteBatch();
-
-        Gdx.gl.glClearColor(1, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.begin();
-        batch.draw(fav, camera.position.x - (tw / 2), camera.position.y - (th / 2));
-        batch.end();
-
-
+        stage.clear();
+        logoImage.addAction( sequence( fadeOut(0f),fadeIn( 0.75f ), delay( 1.00f ), fadeOut( 0.75f ),
+                new Action() {
+                    @Override
+                    public boolean act(
+                            float delta )
+                    {
+                        game.setScreen( new MainMenuScreen( game ) );
+                        return true;
+                    }
+                } ) );
+        stage.addActor(logoImage);
     }
 
     @Override
     public void render(float delta) {
-        batch.begin();
-        batch.draw(fav, camera.position.x - (tw / 2), camera.position.y - (th / 2));
-        batch.end();
+        Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(delta);
+        stage.draw();
 
     }
 
