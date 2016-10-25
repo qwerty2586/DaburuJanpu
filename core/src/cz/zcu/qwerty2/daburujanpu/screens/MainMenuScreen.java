@@ -2,6 +2,7 @@ package cz.zcu.qwerty2.daburujanpu.screens;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
+import cz.zcu.qwerty2.daburujanpu.net.NetCommand;
 
 public class MainMenuScreen implements Screen {
 
@@ -38,6 +40,15 @@ public class MainMenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 game.setScreen(new GameScreen(game));
+            }
+        });
+
+        multiPlayerButton.addListener( new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                game.commandQueue.add(new NetCommand(NetCommand.CONNECT_TO_SERVER,null));
+
             }
         });
 
@@ -80,6 +91,9 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            game.dispose();
+        }
     }
 
     @Override

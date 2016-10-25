@@ -26,6 +26,7 @@ public class SettingsScreen implements Screen {
     TextButton backButton;
     TextField nameText;
     TextField adressText;
+    TextField portText;
     Stage stage;
 
     public SettingsScreen(final DaburuJanpu game) {
@@ -39,6 +40,9 @@ public class SettingsScreen implements Screen {
         nameText.setAlignment(Align.center);
         adressText = new TextField(GamePreferences.getPrefServerAddress(),game.skin);
         adressText.setAlignment(Align.center);
+        portText = new TextField(""+GamePreferences.getPrefPort(),game.skin);
+        portText.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+        portText.setAlignment(Align.center);
 
 
         saveButton = new TextButton("Save", game.skin);
@@ -48,6 +52,9 @@ public class SettingsScreen implements Screen {
                 super.clicked(event, x, y);
                 GamePreferences.setPrefPlayerName(nameText.getText());
                 GamePreferences.setPrefServerAddress(adressText.getText());
+                int port = GamePreferences.stringToPort(portText.getText());
+                GamePreferences.setPrefPort(port);
+                portText.setText(""+port);
             }
         });
         backButton = new TextButton("Back", game.skin);
@@ -62,13 +69,17 @@ public class SettingsScreen implements Screen {
 
 
         table = new Table();
+        table.setDebug(true);
         table.setFillParent(true);
         table.setSkin(game.skin);
         table.add("Name").uniform().fill();
         table.add(nameText).uniform().fill();
         table.row();
-        table.add("Server Adress").fill().spaceBottom(30);
-        table.add(adressText).fill().spaceBottom(30);
+        table.add("Server Adress").fill();
+        table.add(adressText).fill();
+        table.row();
+        table.add("Port").fill().spaceBottom(30);
+        table.add(portText).fill().spaceBottom(30);
         table.row();
         table.add(backButton).uniform().fill();
         table.add(saveButton).uniform().fill();
