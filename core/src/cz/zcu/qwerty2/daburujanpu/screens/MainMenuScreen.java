@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
-import cz.zcu.qwerty2.daburujanpu.net.NetCommand;
+import cz.zcu.qwerty2.daburujanpu.net.Command;
 
 public class MainMenuScreen implements Screen {
 
@@ -39,7 +39,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                game.setScreen(new GameScreen(game));
+             //   game.setScreen(new GameScreen(game));
             }
         });
 
@@ -47,7 +47,12 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                game.commandQueue.add(new NetCommand(NetCommand.CONNECT_TO_SERVER,null));
+                game.setScreen(new LoadingScreen(
+                        game,
+                        LoadingScreen.SITUATION_MAIN_TO_SERVER,
+                        new Command(Command.CONNECT_TO_SERVER)
+
+                ));
 
             }
         });
@@ -61,7 +66,6 @@ public class MainMenuScreen implements Screen {
         });
 
 
-
         table = new Table();
         table.setFillParent(true);
         table.add(singlePlayerButton).size( 300, 60 ).uniform().fill();
@@ -69,6 +73,7 @@ public class MainMenuScreen implements Screen {
         table.add(multiPlayerButton).uniform().fill();
         table.row();
         table.add(settingsButton).uniform().fill();
+
 
         stage = new Stage();
 

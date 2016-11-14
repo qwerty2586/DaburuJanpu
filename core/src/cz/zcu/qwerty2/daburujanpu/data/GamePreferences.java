@@ -3,9 +3,7 @@ package cz.zcu.qwerty2.daburujanpu.data;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 
-/**
- * Created by qwerty on 19. 10. 2016.
- */
+
 
 public class GamePreferences {
     private static final String PREFS = "daburu_janpu";

@@ -1,6 +1,8 @@
 package cz.zcu.qwerty2.daburujanpu.net;
 
 
+import com.badlogic.gdx.Gdx;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,44 +11,131 @@ import java.net.Socket;
 import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
 
 public class NetService implements Runnable {
-    CommandQueue queue;
+    CommandQueue commandQueue;
+    CommandQueue resultQueue;
+    public int myId = 0;
 
     private OutputStream outputStream;
-    Socket outputSocket;
+    private InputStream inputStream;
+    Socket outputSocket,inputSocket;
+    ReceivingThread receivingThread =  new ReceivingThread();
 
-    public NetService(CommandQueue queue) {
-        this.queue = queue;
+    private boolean connected = false;
+
+
+    class ReceivingThread implements Runnable {
+        @Override
+        public void run() {
+            byte[] size_buffer =  new byte[2];
+            int len = 0;
+            while (true) {
+                try {
+                    len = inputStream.read(size_buffer, 0, size_buffer.length);
+                    if (len<0) {
+                        connected=false;
+                        return;
+                    }
+                    System.out.print(String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]));
+                    int size = (size_buffer[0] & 0xFF) * 256 + (size_buffer[1] & 0xFF);
+                    final byte[] buffer = new byte[size];
+                    len = inputStream.read(buffer, 0, buffer.length);
+                    System.out.println(": "+new String(buffer));
+                    publishResult(Command.fromString(new String(buffer)));
+
+                } catch (IOException e) {
+
+                }
+            }
+        }
+    }
+
+    private void publishResult (final Command command) {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                resultQueue.add(command);
+            }
+        });
+    }
+
+    public NetService(CommandQueue commandQueue, CommandQueue resultQueue) {
+        this.commandQueue = commandQueue;
+        this.resultQueue = resultQueue;
+
+
+    }
+
+    boolean connectToServer(String host,int port) {
+        try {
+            outputSocket = new Socket(GamePreferences.getPrefServerAddress(),GamePreferences.getPrefPort());
+            outputStream = outputSocket.getOutputStream();
+            byte[] buffer = new String("00000000").getBytes();
+            outputStream.write(buffer);
+            outputStream.flush();
+            InputStream tempInputStream = outputSocket.getInputStream();
+            tempInputStream.read(buffer,0,8);
+            if (buffer.length==8) {
+                if (buffer[0]=='1') {
+                    int tempID = Integer.valueOf(new String(buffer).substring(1));
+                    inputSocket = new Socket(GamePreferences.getPrefServerAddress(),GamePreferences.getPrefPort());
+                    OutputStream tempOutputStream = inputSocket.getOutputStream();
+                    buffer[0] = '2';
+                    tempOutputStream.write(buffer);
+                    tempOutputStream.flush();
+                    inputStream = inputSocket.getInputStream();
+                    inputStream.read(buffer);
+                    if (buffer[0]=='3') {
+                        new Thread(receivingThread).start();
+                        connected =true;
+                        myId = Integer.valueOf(new String(buffer).substring(1));
+                        return true;
+                    } else return false;
+                } else return false;
+            } else return false;
+
+
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
     public void run() {
-        System.out.println("NetService Started");
 
         while (true) {
             try {
-                synchronized (queue) {
-                    queue.wait();
+                synchronized (commandQueue) {
+                    commandQueue.wait();
                 }
             } catch (InterruptedException ie) {
                 break;
             }
-            while (!queue.isEmpty()) {
-                NetCommand command = queue.remove();
-                if (command.command == NetCommand.CONNECT_TO_SERVER) {
-                    try {
-                        outputSocket = new Socket(GamePreferences.getPrefServerAddress(),GamePreferences.getPrefPort());
-                        outputStream = outputSocket.getOutputStream();
-                        outputStream.write(new String("o0000000").getBytes());
-                        outputStream.flush();
-                        InputStream tempInputSocket = outputSocket.getInputStream();
-                        //TODO
+            while (!commandQueue.isEmpty()) {
+                Command command = commandQueue.remove();
+                if (command.code == Command.CONNECT_TO_SERVER) {
+                    boolean result = connectToServer(GamePreferences.getPrefServerAddress(),GamePreferences.getPrefPort());
+                    if (result) publishResult(new Command(Command.RESULT_CONNECT).addArg(Command.SUCCESS));
+                    else  publishResult(new Command(Command.RESULT_CONNECT).addArg(Command.FAIL));
+                } else {
+                    if (connected) {
+                        byte[] buffer = command.toString().getBytes();
+                        byte[] size_buffer = new byte[2];
+                        int size = buffer.length;
+                        size_buffer[0] = (byte)(size / 256);
+                        size_buffer[1] = (byte)(size % 256);
+                        try {
+                            outputStream.write(size_buffer,0,size_buffer.length);
+                            outputStream.write(buffer,0,buffer.length);
+                            outputStream.flush();
+                        } catch (IOException e) {
 
+                        }
 
-                    } catch (IOException e) {
 
                     }
-                    System.out.println("netserv - " + System.currentTimeMillis());
                 }
+
             }
         }
     }

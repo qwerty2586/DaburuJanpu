@@ -18,10 +18,6 @@ import java.util.Iterator;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
 
-/**
- * Created by qwerty on 10. 10. 2016.
- */
-
 public class GameScreen implements Screen {
     final DaburuJanpu game;
 

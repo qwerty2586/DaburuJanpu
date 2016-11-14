@@ -68,10 +68,8 @@ public class SettingsScreen implements Screen {
 
 
 
-        table = new Table();
-        table.setDebug(true);
+        table = new Table(game.skin);
         table.setFillParent(true);
-        table.setSkin(game.skin);
         table.add("Name").uniform().fill();
         table.add(nameText).uniform().fill();
         table.row();

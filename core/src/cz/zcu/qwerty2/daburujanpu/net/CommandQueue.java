@@ -1,10 +1,10 @@
 package cz.zcu.qwerty2.daburujanpu.net;
 
-public class CommandQueue extends java.util.concurrent.ConcurrentLinkedQueue<NetCommand> {
+public class CommandQueue extends java.util.concurrent.ConcurrentLinkedQueue<Command> {
 
     @Override
-    public boolean add(NetCommand netCommand) {
-        boolean r =  super.add(netCommand);
+    public boolean add(Command command) {
+        boolean r =  super.add(command);
         synchronized (this) {
             this.notify();
         }
