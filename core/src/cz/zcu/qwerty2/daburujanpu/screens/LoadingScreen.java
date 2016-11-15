@@ -43,21 +43,18 @@ public class LoadingScreen implements Screen {
 
     };
 
-
-    OrthographicCamera camera = null;
-    Stage stage;
-    DaburuJanpu game;
-    Label label;
-    int situation;
-    Command sendCommand;
-    TextButton closeButton;
-    Table table;
+    private Stage stage;
+    private DaburuJanpu game;
+    private Label label;
+    private int situation;
+    private TextButton closeButton;
+    private Table table;
 
     public LoadingScreen(DaburuJanpu game, int situation, Command sendCommand) {
         this.game = game;
         this.situation = situation;
 
-        camera = new OrthographicCamera();
+        OrthographicCamera camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         stage = new Stage();
 
@@ -69,7 +66,7 @@ public class LoadingScreen implements Screen {
         closeButton.setVisible(false);
         table.row();
         table.add(closeButton).center();
-        this.sendCommand = sendCommand;
+
         game.commandQueue.add(sendCommand);
     }
 

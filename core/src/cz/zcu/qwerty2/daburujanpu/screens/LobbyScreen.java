@@ -21,22 +21,22 @@ import com.badlogic.gdx.utils.Align;
 import java.util.ArrayList;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
-import cz.zcu.qwerty2.daburujanpu.data.ColorPallete;
+import cz.zcu.qwerty2.daburujanpu.data.ColorPalette;
 import cz.zcu.qwerty2.daburujanpu.data.Player;
 import cz.zcu.qwerty2.daburujanpu.net.Command;
 
 public class LobbyScreen implements Screen {
-    DaburuJanpu game;
-    Table mainTable, playersTable;
+    private DaburuJanpu game;
+    private Table mainTable, playersTable;
 
-    ScrollPane scrollPane, chatScrollPane;
-    Label chat, lobbyNameLabel;
-    int lobbyId = -1;
-    int capacity = -1;
-    int playerCount = -1;
-    TextField chatField;
-    TextButton backButton, chatButton, colorButton, readyButton;
-    Stage stage;
+    private ScrollPane scrollPane, chatScrollPane;
+    private Label chat, lobbyNameLabel;
+    private int lobbyId = -1;
+    private int capacity = -1;
+    private int playerCount = -1;
+    private TextField chatField;
+    private TextButton backButton, chatButton, colorButton, readyButton;
+    private Stage stage;
 
     ArrayList<Player> players = new ArrayList<Player>();
 
@@ -46,7 +46,7 @@ public class LobbyScreen implements Screen {
                 ) {
             playersTable.add(player.name).width(120).fill();
             Pixmap squareColor = new Pixmap(16, 16, Pixmap.Format.RGB888);
-            squareColor.setColor(ColorPallete.colors[player.color]);
+            squareColor.setColor(ColorPalette.colors[player.color]);
             squareColor.fill();
             Image image= new Image(new Texture(squareColor));
             playersTable.add(image).center().padLeft(10).padRight(10);
@@ -238,7 +238,7 @@ public class LobbyScreen implements Screen {
                     Integer.valueOf(c.args.get(++i)),
                     c.args.get(++i),
                     Integer.valueOf(c.args.get(++i)),
-                    Integer.valueOf(c.args.get(++i)) == 1 ? true : false
+                    (Integer.valueOf(c.args.get(++i)) == 1)
             ));
         }
 

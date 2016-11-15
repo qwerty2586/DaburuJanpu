@@ -2,10 +2,10 @@ package cz.zcu.qwerty2.daburujanpu.data;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class ColorPallete {
+public class ColorPalette {
 
-    //arne, ext pallete from https://androidarts.com/palette/16pal.htm
-    public static String hex_colors[] = {
+    //arne, ext palette from https://androidarts.com/palette/16pal.htm
+    private static String hex_colors[] = {
             "#000000",
             "#9D9D9D",
             "#FFFFFF",

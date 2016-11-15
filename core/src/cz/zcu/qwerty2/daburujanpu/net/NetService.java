@@ -11,19 +11,19 @@ import java.net.Socket;
 import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
 
 public class NetService implements Runnable {
-    CommandQueue commandQueue;
-    CommandQueue resultQueue;
+
+    private final CommandQueue commandQueue;
+    private CommandQueue resultQueue;
     public int myId = 0;
 
     private OutputStream outputStream;
     private InputStream inputStream;
-    Socket outputSocket,inputSocket;
-    ReceivingThread receivingThread =  new ReceivingThread();
-
+    private Socket outputSocket,inputSocket;
+    private ReceivingThread receivingThread =  new ReceivingThread();
     private boolean connected = false;
 
 
-    class ReceivingThread implements Runnable {
+    private class ReceivingThread implements Runnable {
         @Override
         public void run() {
             byte[] size_buffer =  new byte[2];
@@ -43,7 +43,7 @@ public class NetService implements Runnable {
                     publishResult(Command.fromString(new String(buffer)));
 
                 } catch (IOException e) {
-
+                    e.printStackTrace();
                 }
             }
         }
@@ -65,16 +65,16 @@ public class NetService implements Runnable {
 
     }
 
-    boolean connectToServer(String host,int port) {
+    private boolean connectToServer(String host,int port) {
         try {
             outputSocket = new Socket(GamePreferences.getPrefServerAddress(),GamePreferences.getPrefPort());
             outputStream = outputSocket.getOutputStream();
-            byte[] buffer = new String("00000000").getBytes();
+            byte[] buffer = "00000000".getBytes();
             outputStream.write(buffer);
             outputStream.flush();
             InputStream tempInputStream = outputSocket.getInputStream();
-            tempInputStream.read(buffer,0,8);
-            if (buffer.length==8) {
+            int count = tempInputStream.read(buffer,0,8);
+            if (count==8) {
                 if (buffer[0]=='1') {
                     int tempID = Integer.valueOf(new String(buffer).substring(1));
                     inputSocket = new Socket(GamePreferences.getPrefServerAddress(),GamePreferences.getPrefPort());
@@ -83,8 +83,8 @@ public class NetService implements Runnable {
                     tempOutputStream.write(buffer);
                     tempOutputStream.flush();
                     inputStream = inputSocket.getInputStream();
-                    inputStream.read(buffer);
-                    if (buffer[0]=='3') {
+                    count = inputStream.read(buffer);
+                    if (count == 8 && buffer[0]=='3') {
                         new Thread(receivingThread).start();
                         connected =true;
                         myId = Integer.valueOf(new String(buffer).substring(1));
@@ -129,7 +129,7 @@ public class NetService implements Runnable {
                             outputStream.write(buffer,0,buffer.length);
                             outputStream.flush();
                         } catch (IOException e) {
-
+                            e.printStackTrace();
                         }
 
 

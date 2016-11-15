@@ -1,6 +1,5 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -17,25 +16,20 @@ import cz.zcu.qwerty2.daburujanpu.net.Command;
 
 public class MainMenuScreen implements Screen {
 
-
-    DaburuJanpu game;
-    OrthographicCamera camera;
-    Table table;
-    TextButton singlePlayerButton;
-    TextButton multiPlayerButton;
-    TextButton settingsButton;
-    Stage stage;
+    private DaburuJanpu game;
+    private Table table;
+    private Stage stage;
 
     public MainMenuScreen(final DaburuJanpu game) {
         this.game = game;
 
-        camera = new OrthographicCamera();
+        OrthographicCamera camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
-        singlePlayerButton = new TextButton("Single player", game.skin);
-        multiPlayerButton = new TextButton("Multiplayer player", game.skin);
-        settingsButton = new TextButton("Settings", game.skin);
+        TextButton singlePlayerButton = new TextButton("Single player", game.skin);
+        TextButton multiPlayerButton = new TextButton("Multiplayer player", game.skin);
+        TextButton settingsButton = new TextButton("Settings", game.skin);
 
-        singlePlayerButton.addListener( new ClickListener() {
+        singlePlayerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
@@ -43,7 +37,7 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        multiPlayerButton.addListener( new ClickListener() {
+        multiPlayerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
@@ -57,7 +51,7 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        settingsButton.addListener( new ClickListener() {
+        settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
