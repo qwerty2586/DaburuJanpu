@@ -34,6 +34,18 @@ public class LoadingScreen implements Screen {
             "Exiting..."
     };
 
+    private static final String[] FAIL_TEXT = {
+            "Cant connect to server",
+            "",
+            "Unable to join lobby.",
+            "There is already a lobby with that name!",
+            "",
+            "",
+            ""
+    };
+
+
+
     private static final int[] EXIT_RESULT_COMMAND = {
             Command.RESULT_CONNECT,
             -100,
@@ -106,7 +118,7 @@ public class LoadingScreen implements Screen {
                 if (Integer.valueOf(n.args.get(0)) == Command.FAIL) {
                     switch (situation) {
                         case SITUATION_MAIN_TO_SERVER:
-                            fallback("Cant connect to server", new ClickListener() {
+                            fallback(FAIL_TEXT[situation], new ClickListener() {
                                 @Override
                                 public void clicked(InputEvent event, float x, float y) {
                                     super.clicked(event, x, y);
@@ -115,7 +127,7 @@ public class LoadingScreen implements Screen {
                             });
                             break;
                         case SITUATION_SERVER_TO_LOBBY_JOIN:
-                            fallback("Unable to join lobby. Reason: " + n.args.get(1), new ClickListener() {
+                            fallback(FAIL_TEXT[situation]+" Reason: " + n.args.get(1), new ClickListener() {
                                 @Override
                                 public void clicked(InputEvent event, float x, float y) {
                                     super.clicked(event, x, y);
@@ -125,7 +137,7 @@ public class LoadingScreen implements Screen {
                             break;
 
                         case SITUATION_SERVER_TO_LOBBY_CREATE:
-                            fallback("There is already a lobby with that name", new ClickListener() {
+                            fallback(FAIL_TEXT[situation], new ClickListener() {
                                 @Override
                                 public void clicked(InputEvent event, float x, float y) {
                                     super.clicked(event, x, y);
