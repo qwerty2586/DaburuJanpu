@@ -1,10 +1,29 @@
 package cz.zcu.qwerty2.daburujanpu.data;
 
 public class Player {
+    public static final int SPRITE_SIZE = 32;
     public int id = -1;
     public String name = "Unknown";
     public int color = -1;
     public boolean ready = false;
+
+
+    public int frame = 0;
+    public float x, y;
+
+    public boolean inputup = false, inputl = false, inputp = false;
+
+    public boolean falling = false, jumping = false;
+    public float speedx = 0, speedy = 0;
+    public int maxstep = 0;
+
+    private static int SPEED_LIMIT = 10;
+    private static float SPEED_STEP = 1;
+    private static float SLOW_STEP = .35f;
+    private static float BOUNCE_MULTIPLIER = 1.5f;
+    private static float R_EDGE = Level.SCREEN_WIDTH - Player.SPRITE_SIZE;
+    private static float MIN_JUMP = 10;
+
 
     public Player() {
     }
@@ -14,6 +33,89 @@ public class Player {
         this.name = name;
         this.color = color;
         this.ready = ready;
+    }
+
+    public void nextFrame(Level level) {
+
+        // HORIZONTALNI FYZIKA
+
+        if (speedx < SPEED_LIMIT && inputp) speedx += SPEED_STEP;
+        if (speedx > -SPEED_LIMIT && inputl) speedx -= SPEED_STEP;
+
+        if (!(inputl || inputp)) speedx = speedx - Math.signum(speedx) * SLOW_STEP; // brzdeni
+
+        if (-1 < speedx && speedx < 1) speedx = .0f; // dobrzdeni jinak se budde zpomalovat navzdy
+
+        x += speedx;
+        if (x < 0) {
+            x = -x;
+            speedx *= -BOUNCE_MULTIPLIER; // kdyz narazi o rantl tak se odrazi vetsi rychlosti
+        }
+        if (x > R_EDGE) {
+            x = R_EDGE - (x - R_EDGE);
+            speedx *= -BOUNCE_MULTIPLIER;
+        }
+
+        if (speedx < -SPEED_LIMIT * 2) speedx = -SPEED_LIMIT * 2; // tohle je maximalni rychlost
+        if (speedx > SPEED_LIMIT * 2) speedx = SPEED_LIMIT * 2;
+
+        // VERTIKALNI FYZIKA
+
+        //nejdriv ceknem jesli jsme neprejeli prez okraj
+
+        if (!jumping && !falling) {
+            int teststep = (int)y / Level.STEP_DISTANCE;
+            if (Level.STEPS[level.getStep(teststep)][(int)(x+SPRITE_SIZE/2)/Level.BLOCK_SIZE]==0) {
+                falling =true; // prepadli sme
+            }
+        }
+
+
+        if (!jumping && !falling && inputup) {
+            speedy = Math.max(Math.abs(speedx), MIN_JUMP);
+            jumping = true;
+        }
+
+        if (speedy < 0) falling = true;
+
+        if (jumping && !falling) {
+            if (inputup) {
+                speedy -= SLOW_STEP;
+            } else {
+                speedy -= SLOW_STEP * 2; // kdyz nedrzime skakaci cudlik tak mame mensi skok, padame rychlejc
+            }
+        }
+
+        if (falling) {
+            speedy -= SLOW_STEP * 2; //volny pad
+        }
+
+        // KOLIZNI FYZIKA
+
+
+        if (falling) {
+            int teststep = (int)y / Level.STEP_DISTANCE; // zaokrouhnime na nejblizsi schod
+            while (teststep*Level.STEP_DISTANCE > y + speedy) {
+                if (Level.STEPS[level.getStep(teststep)][(int)(x+SPRITE_SIZE/2)/Level.BLOCK_SIZE]>0) {
+                    speedy = 0;
+                    jumping = false;
+                    falling = false;
+                    y = teststep * Level.STEP_DISTANCE;
+                    maxstep = Math.max(teststep,maxstep); // updatneme skore
+                    break;
+                }
+
+                teststep--;
+            }
+        }
+
+
+        if (falling || jumping) y += speedy;
+
+
+        frame++;
+
+
     }
 
 

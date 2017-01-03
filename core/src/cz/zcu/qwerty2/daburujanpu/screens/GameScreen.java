@@ -1,145 +1,140 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g3d.particles.influencers.ColorInfluencer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
+import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
+import cz.zcu.qwerty2.daburujanpu.data.Level;
+import cz.zcu.qwerty2.daburujanpu.data.Player;
 
 public class GameScreen implements Screen {
+    public static final int SINGLE_PLAYER = 0;
+    public static final int MULTI_PLAYER = 1;
+    private static final int CAMERA_START_SHIFT = -200;
+
     final DaburuJanpu game;
 
     Texture dropImage;
     Texture bucketImage;
-    Sound dropSound;
-    Music rainMusic;
+
     OrthographicCamera camera;
     Rectangle bucket;
     Array<Rectangle> raindrops;
     long lastDropTime;
     int dropsGathered;
+    private int startType;
+    Level level = null;
+    TextureAtlas stepAtlas;
+    Array<TextureAtlas.AtlasRegion> stepAtlasRegions;
+    TextureAtlas gearAtlas;
+    Array<TextureAtlas.AtlasRegion> gearAtlasRegions;
+    ArrayList<Player> players;
+    int myindex;
+    Stage stage; // jenom pro vyblokovani vstupu v ostatnich screenach
+    private boolean escaping =false;
+    int camerapos = 0;
 
-    public GameScreen(final DaburuJanpu game) {
+    public GameScreen(final DaburuJanpu game,int startType) {
         this.game = game;
+        this.startType = startType;
 
-        // load the images for the droplet and the bucket, 64x64 pixels each
-        dropImage = new Texture(Gdx.files.internal("wall.png"));
-        bucketImage = new Texture(Gdx.files.internal("wall.png"));
+        if (this.startType==SINGLE_PLAYER) {
+            level = new Level(Level.generateRandomSeed());
+            players = new ArrayList<Player>();
+            players.add(new Player(0, GamePreferences.getPrefPlayerName(),0,true));
+            myindex = 0;
+        }
 
-        // load the drop sound effect and the rain background "music"
-        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
-        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
-        rainMusic.setLooping(true);
+        stepAtlas = new TextureAtlas(Gdx.files.internal("steps/atlas_steps32.atlas"));
+        stepAtlasRegions = stepAtlas.getRegions();
+        gearAtlas = new TextureAtlas(Gdx.files.internal("gears/atlas_gears32.atlas"));
+        gearAtlasRegions = gearAtlas.getRegions();
 
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, 640, 480);
+        camera.translate(0,CAMERA_START_SHIFT);
 
-        // create a Rectangle to logically represent the bucket
-        bucket = new Rectangle();
-        bucket.x = 800 / 2 - 64 / 2; // center the bucket horizontally
-        bucket.y = 20; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        bucket.width = 64;
-        bucket.height = 64;
-
-        // create the raindrops array and spawn the first raindrop
-        raindrops = new Array<Rectangle>();
-        spawnRaindrop();
+        stage = new Stage();
 
     }
 
-    private void spawnRaindrop() {
-        Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, 800 - 64);
-        raindrop.y = 480;
-        raindrop.width = 64;
-        raindrop.height = 64;
-        raindrops.add(raindrop);
-        lastDropTime = TimeUtils.nanoTime();
-    }
 
     @Override
     public void render(float delta) {
-        // clear the screen with a dark blue color. The
-        // arguments to glClearColor are the red, green
-        // blue and alpha component in the range [0,1]
-        // of the color to be used to clear the screen.
         Gdx.gl.glClearColor(0, 0, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // tell the camera to update its matrices.
+        if (camerapos < players.get(myindex).y)
+        {
+            int shift = ((int)players.get(myindex).y - camerapos) / 2 ;
+            camera.translate(0,shift);
+            camerapos += shift;
+        }
+
+
         camera.update();
-
-        // tell the SpriteBatch to render in the
-        // coordinate system specified by the camera.
         game.batch.setProjectionMatrix(camera.combined);
-
-        // begin a new batch and draw the bucket and
-        // all drops
         game.batch.begin();
-        game.font.draw(game.batch, "Drops Collected: " + dropsGathered, 0, 480);
-        game.batch.draw(bucketImage, bucket.x, bucket.y, bucket.width, bucket.height);
-        for (Rectangle raindrop : raindrops) {
-            game.batch.draw(dropImage, raindrop.x, raindrop.y);
-        }
-        game.batch.end();
 
-        // process user input
-        if (Gdx.input.isTouched()) {
-            Vector3 touchPos = new Vector3();
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(touchPos);
-            bucket.x = touchPos.x - 64 / 2;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            bucket.x -= 200 * Gdx.graphics.getDeltaTime();
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            bucket.x += 200 * Gdx.graphics.getDeltaTime();
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            this.dispose();
-            game.setScreen(new MainMenuScreen(game));
-        }
-
-
-
-        // make sure the bucket stays within the screen bounds
-        if (bucket.x < 0)
-            bucket.x = 0;
-        if (bucket.x > 800 - 64)
-            bucket.x = 800 - 64;
-
-        // check if we need to create a new raindrop
-        if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
-            spawnRaindrop();
-
-        // move the raindrops, remove any that are beneath the bottom edge of
-        // the screen or that hit the bucket. In the later case we increase the
-        // value our drops counter and add a sound effect.
-        Iterator<Rectangle> iter = raindrops.iterator();
-        while (iter.hasNext()) {
-            Rectangle raindrop = iter.next();
-            raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
-            if (raindrop.y + 64 < 0)
-                iter.remove();
-            if (raindrop.overlaps(bucket)) {
-                dropsGathered++;
-                dropSound.play();
-                iter.remove();
+        for (int i=((camerapos+CAMERA_START_SHIFT)/Level.STEP_DISTANCE);i<((camerapos+CAMERA_START_SHIFT+100+Level.SCREEN_HEIGHT)/Level.STEP_DISTANCE);i++) {
+            int step = level.getStep(i);
+            int color = level.getStepColor(i);
+            color = 0;
+            for (int j = 0; j < Level.STEPS_WIDTH; j++) {
+                int type = Level.STEPS[step][j];
+                if (type>0) {
+                    game.batch.draw(stepAtlasRegions.get(color*3 + type - 1),j*32,i*Level.STEP_DISTANCE - 32);
+                }
             }
         }
+        Player me = players.get(myindex);
+        game.font.draw(game.batch, "   " + me.maxstep, 0, camerapos-CAMERA_START_SHIFT);
+        game.batch.draw(gearAtlasRegions.get(me.color), me.x, me.y, Player.SPRITE_SIZE/2, Player.SPRITE_SIZE/2,Player.SPRITE_SIZE,Player.SPRITE_SIZE,1,1,-me.x);
+
+        Gdx.graphics.setTitle(""+Gdx.graphics.getFramesPerSecond());
+
+        game.batch.end();
+
+
+
+
+
+        // uzivatelske vstupy
+
+
+        players.get(myindex).inputl = Gdx.input.isKeyPressed(Input.Keys.LEFT);
+        players.get(myindex).inputp = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+        players.get(myindex).inputup = Gdx.input.isKeyPressed(Input.Keys.UP)||
+                                      Gdx.input.isKeyPressed(Input.Keys.SPACE);
+
+        players.get(myindex).nextFrame(level);
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            escaping =true;
+        } else  {
+            if (escaping)
+            game.setScreen(new MainMenuScreen(game)); // alternativa ke keyup, ktera je asi 10x kratsi
+        }
+
+
     }
 
     @Override
@@ -148,9 +143,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        // start the playback of the background music
-        // when the screen is shown
-        rainMusic.play();
+        stage.clear();
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -167,10 +161,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        dropImage.dispose();
-        bucketImage.dispose();
-        dropSound.dispose();
-        rainMusic.dispose();
     }
 
 }
