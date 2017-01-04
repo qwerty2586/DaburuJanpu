@@ -8,7 +8,7 @@ public class Level {
     public static final int EMPTY_STEP = 0;
     public static final int FULL_STEP =  1;
     public static final int FULL_STEP_EVERY_X = 50;
-    public static final int STEP_COLORS_COUNT = 4;
+    public static final int STEP_COLORS_COUNT = 8;
     public static final int STEPS_WIDTH = 20;
     public static final int SCREEN_WIDTH = 640;
     public static final int SCREEN_HEIGHT = 480;
@@ -94,6 +94,8 @@ public class Level {
         for (int i=0;i<SEED_LENGTH;i++) {
             r[i] = ran.nextInt(STEPS_TYPE_COUNT - 2) + 2;
         }
+
+
         return r;
     }
 
@@ -141,6 +143,11 @@ public class Level {
         if (step<0) return 0; // osetreni zapornejch
         int part = step/FULL_STEP_EVERY_X;
         int color = (seed[part%SEED_LENGTH])%STEP_COLORS_COUNT;
+        if (part>0) {
+            if (color==getStepColor(step-FULL_STEP_EVERY_X)) {
+                return (color+1)%STEP_COLORS_COUNT; // pokud by jsme meli dostat dvakrat stejnou barvu pak menime
+            }
+        }
         return color;
     }
 

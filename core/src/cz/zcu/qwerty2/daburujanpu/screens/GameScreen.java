@@ -97,7 +97,6 @@ public class GameScreen implements Screen {
         for (int i=((camerapos+CAMERA_START_SHIFT)/Level.STEP_DISTANCE);i<((camerapos+CAMERA_START_SHIFT+100+Level.SCREEN_HEIGHT)/Level.STEP_DISTANCE);i++) {
             int step = level.getStep(i);
             int color = level.getStepColor(i);
-            color = 0;
             for (int j = 0; j < Level.STEPS_WIDTH; j++) {
                 int type = Level.STEPS[step][j];
                 if (type>0) {
