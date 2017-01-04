@@ -1,0 +1,27 @@
+
+atlas_steps16.png
+size: 48,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+step0a
+  rotate: false
+  xy: 0, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+step0b
+  rotate: false
+  xy: 16, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+step0c
+  rotate: false
+  xy: 32, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1    
