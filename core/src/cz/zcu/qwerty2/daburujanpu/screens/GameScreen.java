@@ -123,13 +123,17 @@ public class GameScreen implements Screen {
             }
         }
 
+
         //kresleni hracu
-        for (int i = 0; i < players.size(); i++) {
-            game.batch.draw(gearAtlasRegions.get(players.get(i).color), players.get(i).x, players.get(i).y,
-                    Player.SPRITE_SIZE / 2, Player.SPRITE_SIZE / 2, Player.SPRITE_SIZE, Player.SPRITE_SIZE, 1, 1, -players.get(i).x);
-            game.font.draw(game.batch, ""+players.get(i).maxstep, 0, camerapos - CAMERA_START_SHIFT + i*game.font.getLineHeight());
-            game.font.draw(game.batch, players.get(i).name, 20, camerapos - CAMERA_START_SHIFT + i*game.font.getLineHeight());
+        if (players.size()>0) {
+            for (int i = 0; i < players.size(); i++) {
+                game.batch.draw(gearAtlasRegions.get(players.get(i).color), players.get(i).x, players.get(i).y,
+                        Player.SPRITE_SIZE / 2, Player.SPRITE_SIZE / 2, Player.SPRITE_SIZE, Player.SPRITE_SIZE, 1, 1, -players.get(i).x);
+                game.font.draw(game.batch, "" + players.get(i).maxstep, 0, camerapos - CAMERA_START_SHIFT + i * game.font.getLineHeight());
+                game.font.draw(game.batch, players.get(i).name, 20, camerapos - CAMERA_START_SHIFT + i * game.font.getLineHeight());
+            }
         }
+
         //kreseni vysledkove listiny
         if (results!=null) {
             game.font.setColor(Color.WHITE);
