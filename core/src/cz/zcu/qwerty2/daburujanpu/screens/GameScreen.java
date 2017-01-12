@@ -125,6 +125,8 @@ public class GameScreen implements Screen {
 
 
         //kresleni hracu
+
+        /*
         if (players.size()>0) {
             for (int i = 0; i < players.size(); i++) {
                 game.batch.draw(gearAtlasRegions.get(players.get(i).color), players.get(i).x, players.get(i).y,
@@ -133,6 +135,7 @@ public class GameScreen implements Screen {
                 game.font.draw(game.batch, players.get(i).name, 20, camerapos - CAMERA_START_SHIFT + i * game.font.getLineHeight());
             }
         }
+        */
 
         //kreseni vysledkove listiny
         if (results!=null) {
@@ -180,7 +183,6 @@ public class GameScreen implements Screen {
                 }
             }
         }
-
 
         if (startType == MULTI_PLAYER) {
             while (!game.resultQueue.isEmpty()) {
@@ -260,6 +262,8 @@ public class GameScreen implements Screen {
                 }
             }
         }
+
+
 
 
     }
