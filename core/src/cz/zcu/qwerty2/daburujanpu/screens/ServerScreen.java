@@ -1,6 +1,8 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -27,7 +29,7 @@ public class ServerScreen implements Screen {
     Table mainTable;
     List list;
     ScrollPane scrollPane;
-    TextButton refreshButton, joinButton, createButton, backButton;
+    TextButton refreshButton, joinButton, createButton, backButton, serverStatsButton,reconnectButton;
     TextField lobbyNameTextField;
     Stage stage;
     ArrayList<Lobby> lobbyList = new ArrayList<Lobby>();
@@ -102,6 +104,22 @@ public class ServerScreen implements Screen {
                 backToMenu();
             }
         });
+        serverStatsButton = new TextButton("Server stats",game.skin);
+        serverStatsButton.addListener( new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                askForStats();
+            }
+        });
+        reconnectButton = new TextButton("Reconnect",game.skin);
+        reconnectButton.addListener( new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                reconnect();
+            }
+        });
 
         lobbyNameTextField = new TextField("", game.skin);
         lobbyNameTextField.setTextFieldFilter(new TextField.TextFieldFilter() {
@@ -145,12 +163,33 @@ public class ServerScreen implements Screen {
         mainTable.add(createButton).uniform().fill();
         mainTable.row();
         mainTable.add(backButton).uniform().fill().spaceTop(30);
+        mainTable.add(serverStatsButton).fill().spaceTop(30);
+        mainTable.add(reconnectButton).fill().spaceTop(30);
         stage = new Stage();
-
-        game.commandQueue.add(new Command(Command.SET_PLAYER_NAME).addArg(GamePreferences.getPrefPlayerName()));
+        String name = GamePreferences.getPrefPlayerName().replaceAll(";"," ");
+        if (name.length()==0) name = " ";
+        game.commandQueue.add(new Command(Command.SET_PLAYER_NAME).addArg(name));
         sendRefresh();
 
+        reconnectButton.setVisible(false);
+        askForReconnect();
 
+
+    }
+
+    private void askForReconnect() {
+        int id = GamePreferences.getReconnectId();
+        if (id!=GamePreferences.DEFAULT_RECONNECT_ID) {
+            game.commandQueue.add(new Command(Command.GAME_RECONNECT_ASK).addArg(id));
+        }
+    }
+
+    private void reconnect() {
+        game.commandQueue.add(new Command(Command.GAME_RECONNECT_DO).addArg(GamePreferences.getReconnectId()));
+    }
+
+    private void askForStats() {
+        game.commandQueue.add(new Command(Command.SHOW_SERVER_STATISTICS));
     }
 
     private void createLobby() {
@@ -197,6 +236,21 @@ public class ServerScreen implements Screen {
             if (c.code == Command.LOBBY_LIST) {
                 updateLobbyList(c);
             }
+            if (c.code == Command.HW_DISCONNECTED) {
+                game.setScreen(new LoadingScreen(game, LoadingScreen.SITUATION_DISCONNECTED, null));
+            }
+            if (c.code == Command.SERVER_STATISTICS) {
+                System.out.println(c.args.get(0));
+            }
+            if (c.code == Command.GAME_RECONNECT_ASK_RESULT) {
+                if (c.argInt(0)==1) reconnectButton.setVisible(true);
+            }
+            if (c.code == Command.GAME_RECONNECT_DO_RESULT) {
+                if (c.argInt(0)==1) game.setScreen(new GameScreen(game,GameScreen.MULTI_PLAYER));
+            }
+
+
+
         }
     }
 

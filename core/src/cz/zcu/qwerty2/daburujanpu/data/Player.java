@@ -1,10 +1,15 @@
 package cz.zcu.qwerty2.daburujanpu.data;
 
+
+import java.util.Arrays;
+
+import cz.zcu.qwerty2.daburujanpu.net.Command;
+
 public class Player {
     public static final int SPRITE_SIZE = 32;
     public int id = -1;
     public String name = "Unknown";
-    public int color = -1;
+    public int color = 0;
     public boolean ready = false;
 
 
@@ -13,7 +18,7 @@ public class Player {
 
     public boolean inputup = false, inputl = false, inputp = false;
 
-    public boolean falling = false, jumping = false;
+    public boolean falling = false, jumping = false, dead = false;
     public float speedx = 0, speedy = 0;
     public int maxstep = 0;
 
@@ -35,7 +40,59 @@ public class Player {
         this.ready = ready;
     }
 
+    public String serialize() {
+        String[] str_arr = {
+                "" + id, name,
+                "" + color,
+                ready ? "1" : "0",
+                "" + frame,
+                "" + x,
+                "" + y,
+                inputup ? "1" : "0",
+                inputl ? "1" : "0",
+                inputp ? "1" : "0",
+                falling ? "1" : "0",
+                jumping ? "1" : "0",
+                dead ? "1" : "0",
+                "" + speedx,
+                "" + speedy,
+                "" + maxstep};
+        return String.join("" + Command.DEFAULT_DELIMITER, Arrays.asList(str_arr));
+    }
+
+    public void deserialize(String s) {
+        String[] str_arr = s.split("" + Command.DEFAULT_DELIMITER);
+    }
+
+
+    public int fromArgs(Command c, int i) {
+        id = c.argInt(i++);
+        name = c.args.get(i++);
+        color = c.argInt(i++);
+        ready = c.argInt(i++)==1;
+        frame = c.argInt(i++);
+
+        x = c.argFloat(i++);
+        y = c.argFloat(i++);
+        inputup = c.argInt(i++)==1;
+        inputl = c.argInt(i++)==1;
+        inputp = c.argInt(i++)==1;
+
+        falling = c.argInt(i++)==1;
+        jumping = c.argInt(i++)==1;
+        dead = c.argInt(i++)==1;
+        speedx = c.argFloat(i++);
+        speedy = c.argFloat(i++);
+
+        maxstep = c.argInt(i++);
+        return i;
+    }
+
     public void nextFrame(Level level) {
+        if (dead) {
+            frame++;
+            return;
+        }
 
         // HORIZONTALNI FYZIKA
 
@@ -64,9 +121,9 @@ public class Player {
         //nejdriv ceknem jesli jsme neprejeli prez okraj
 
         if (!jumping && !falling) {
-            int teststep = (int)y / Level.STEP_DISTANCE;
-            if (Level.STEPS[level.getStep(teststep)][(int)(x+SPRITE_SIZE/2)/Level.BLOCK_SIZE]==0) {
-                falling =true; // prepadli sme
+            int teststep = (int) y / Level.STEP_DISTANCE;
+            if (Level.STEPS[level.getStep(teststep)][(int) (x + SPRITE_SIZE / 2) / Level.BLOCK_SIZE] == 0) {
+                falling = true; // prepadli sme
             }
         }
 
@@ -94,14 +151,14 @@ public class Player {
 
 
         if (falling) {
-            int teststep = (int)y / Level.STEP_DISTANCE; // zaokrouhnime na nejblizsi schod
-            while (teststep*Level.STEP_DISTANCE > y + speedy) {
-                if (Level.STEPS[level.getStep(teststep)][(int)(x+SPRITE_SIZE/2)/Level.BLOCK_SIZE]>0) {
+            int teststep = (int) y / Level.STEP_DISTANCE; // zaokrouhnime na nejblizsi schod
+            while (teststep * Level.STEP_DISTANCE > y + speedy) {
+                if (Level.STEPS[level.getStep(teststep)][(int) (x + SPRITE_SIZE / 2) / Level.BLOCK_SIZE] > 0) {
                     speedy = 0;
                     jumping = false;
                     falling = false;
                     y = teststep * Level.STEP_DISTANCE;
-                    maxstep = Math.max(teststep,maxstep); // updatneme skore
+                    maxstep = Math.max(teststep, maxstep); // updatneme skore
                     break;
                 }
 

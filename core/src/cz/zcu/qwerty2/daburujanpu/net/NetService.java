@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
 
@@ -35,13 +36,23 @@ public class NetService implements Runnable {
                         connected=false;
                         return;
                     }
-                    System.out.print(String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]));
                     int size = (size_buffer[0] & 0xFF) * 256 + (size_buffer[1] & 0xFF);
                     final byte[] buffer = new byte[size];
-                    len = inputStream.read(buffer, 0, buffer.length);
-                    System.out.println(": "+new String(buffer));
+                    len = 0;
+                    while (len<size) {
+                        int a = inputStream.read(buffer, len, buffer.length - len);
+                        if (a<0) {
+                            connected=false;
+                            return;
+                        }
+                        len +=a;
+                    }
+                    Logging.writeline("I "+String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]) + ": "+new String(buffer));
                     publishResult(Command.fromString(new String(buffer)));
-
+                } catch (SocketException e) {
+                    connected = false;
+                    publishResult(new Command(Command.HW_DISCONNECTED));
+                    return;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -94,7 +105,6 @@ public class NetService implements Runnable {
             } else return false;
 
 
-
         } catch (Exception e) {
             return false;
         }
@@ -124,10 +134,14 @@ public class NetService implements Runnable {
                         int size = buffer.length;
                         size_buffer[0] = (byte)(size / 256);
                         size_buffer[1] = (byte)(size % 256);
+                        Logging.writeline("O "+String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]) + ": "+new String(buffer));
                         try {
                             outputStream.write(size_buffer,0,size_buffer.length);
                             outputStream.write(buffer,0,buffer.length);
                             outputStream.flush();
+                        } catch (SocketException e) {
+                            connected = false;
+                            publishResult(new Command(Command.HW_DISCONNECTED));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

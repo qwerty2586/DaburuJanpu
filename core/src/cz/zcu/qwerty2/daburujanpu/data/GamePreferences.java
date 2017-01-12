@@ -10,9 +10,12 @@ public class GamePreferences {
     private static final String PREF_PLAYER_NAME = "player_name";
     private static final String PREF_SERVER_ADDRESS = "server_address";
     private static final String PREF_PORT = "server_port";
+    private static final String PREF_RECONNECT_ID = "reconnect_id";
 
     private static final String DEFAULT_PLAYER_NAME = "player";
     private static final String DEFAULT_SERVER_ADDRESS = "127.0.0.1";
+    public static final int DEFAULT_RECONNECT_ID = -1;
+
     private static final int DEFAULT_PORT = 1234;
     private static final int MIN_PORT = 0;
     private static final int MAX_PORT = 65535;
@@ -50,6 +53,15 @@ public class GamePreferences {
         getPrefs().putInteger(PREF_PORT,port);
         getPrefs().flush();
     }
+
+    public static void setReconnectId (int id) {
+        getPrefs().putInteger(PREF_RECONNECT_ID,id);
+        getPrefs().flush();
+    }
+    public static int getReconnectId () {
+        return getPrefs().getInteger(PREF_RECONNECT_ID,DEFAULT_RECONNECT_ID);
+    }
+
 
 
     public static int stringToPort(String s) {

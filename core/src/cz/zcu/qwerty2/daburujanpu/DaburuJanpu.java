@@ -11,7 +11,6 @@ import cz.zcu.qwerty2.daburujanpu.data.Player;
 import cz.zcu.qwerty2.daburujanpu.net.CommandQueue;
 import cz.zcu.qwerty2.daburujanpu.net.NetService;
 import cz.zcu.qwerty2.daburujanpu.screens.MainMenuScreen;
-import cz.zcu.qwerty2.daburujanpu.screens.SplashScreen;
 
 public class DaburuJanpu extends Game {
 	public SpriteBatch batch;
@@ -30,8 +29,8 @@ public class DaburuJanpu extends Game {
 		resultQueue = new CommandQueue();
 		netService = new NetService(commandQueue,resultQueue);
 		new Thread(netService).start();
-		setScreen(new SplashScreen(this));
-		//setScreen(new MainMenuScreen(this));
+		//setScreen(new SplashScreen(this));
+		setScreen(new MainMenuScreen(this));
 	}
 
 	@Override

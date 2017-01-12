@@ -9,6 +9,7 @@ public class Command {
     public static final char DEFAULT_DELIMITER = ';';
     public static final int CONNECT_TO_SERVER = -1;
     public static final int RESULT_CONNECT = -2;
+    public static final int HW_DISCONNECTED = -3;
 
 
     public static final int PING = 1;
@@ -29,6 +30,26 @@ public class Command {
     public static final int RECEIVE_CHAT = 18;
     public static final int SET_READY = 19;
     public static final int CHANGE_COLOR = 20;
+    public static final int SHOW_SERVER_STATISTICS = 21;
+    public static final int SERVER_STATISTICS = 22;
+
+    public static final int GAME_STARTED = 30;
+    public static final int READY_FOR_GAME_INFO = 31;
+    public static final int GAME_INFO = 32;
+    public static final int ROUND_LOADED = 33;
+    public static final int ROUND_START = 34;
+    public static final int MY_UPDATE = 35;
+    public static final int LEAVE_GAME = 36;
+    public static final int GAME_INFO_SEED = 37;
+    public static final int GAME_NEW_ROUND = 38;
+    public static final int GAME_RESULT = 39;
+
+
+    public static final int GAME_RECONNECT_ASK = 50;
+    public static final int GAME_RECONNECT_ASK_RESULT = 51;
+    public static final int GAME_RECONNECT_DO = 52;
+    public static final int GAME_RECONNECT_DO_RESULT = 53;
+
 
     public static final int  CHAT_MAX_LENGTH = 16 * 1024;
 
@@ -50,6 +71,14 @@ public class Command {
 
     public Command addArg(int arg) {
         return addArg(Integer.toString(arg));
+    }
+
+    public int argInt(int index) {
+        return Integer.valueOf(args.get(index));
+    }
+
+    public float argFloat(int index) {
+        return Float.valueOf(args.get(index));
     }
 
     public String toString() {
@@ -74,6 +103,7 @@ public class Command {
         r.args.remove(0);
         return r;
     }
+
 
     ;
 

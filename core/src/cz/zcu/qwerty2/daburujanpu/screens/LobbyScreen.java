@@ -120,8 +120,6 @@ public class LobbyScreen implements Screen {
             }
         });
 
-        for (int i = 0; i < 20; i++)
-            players.add(new Player(0, "HH", 5, true));
 
 
         makePlayersTable(players, playersTable);
@@ -159,8 +157,7 @@ public class LobbyScreen implements Screen {
         game.commandQueue.add(new Command(Command.CHANGE_COLOR));
     }
 
-    private void readySend() {
-    }
+    private void readySend() { game.commandQueue.add(new Command(Command.SET_READY)); }
 
     private void chatSend() {
         if (chatField.getText().length() > 0) {
@@ -219,6 +216,12 @@ public class LobbyScreen implements Screen {
                     break;
                 case Command.RECEIVE_CHAT:
                     receiveChat(c);
+                    break;
+                case Command.GAME_STARTED:
+                    game.setScreen(new GameScreen(game,GameScreen.MULTI_PLAYER));
+                    break;
+                case Command.HW_DISCONNECTED:
+                    game.setScreen(new LoadingScreen(game,LoadingScreen.SITUATION_DISCONNECTED,null));
                     break;
             }
         }

@@ -23,6 +23,7 @@ public class LoadingScreen implements Screen {
     public static final int SITUATION_LOBBY_TO_SERVER = 4;
     public static final int SITUATION_LOBBY_TO_GAME = 5;
     public static final int SITUATION_GAME_TO_SERVER = 6;
+    public static final int SITUATION_DISCONNECTED = 7;
 
     private static final String[] DEFAULT_TEXT = {
             "Connecting to server...",
@@ -31,7 +32,8 @@ public class LoadingScreen implements Screen {
             "Creating game...",
             "Leaving game...",
             "Starting...",
-            "Exiting..."
+            "Exiting...",
+            "Disconnect..."
     };
 
     private static final String[] FAIL_TEXT = {
@@ -41,7 +43,8 @@ public class LoadingScreen implements Screen {
             "There is already a lobby with that name!",
             "",
             "",
-            ""
+            "",
+            "Disconnect..."
     };
 
 
@@ -76,10 +79,19 @@ public class LoadingScreen implements Screen {
         table.add(label).fill();
         closeButton = new TextButton("Close", game.skin);
         closeButton.setVisible(false);
+        if (situation==SITUATION_DISCONNECTED) {
+            fallback(DEFAULT_TEXT[situation],new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    game.setScreen(new MainMenuScreen(game));
+                }
+            }) ;
+        }
         table.row();
         table.add(closeButton).center();
 
-        game.commandQueue.add(sendCommand);
+        if (sendCommand!=null) game.commandQueue.add(sendCommand);
     }
 
     @Override
@@ -144,6 +156,9 @@ public class LoadingScreen implements Screen {
                                     game.setScreen(new ServerScreen(game));
                                 }
                             });
+                            break;
+                        case Command.HW_DISCONNECTED:
+                            game.setScreen(new LoadingScreen(game,LoadingScreen.SITUATION_DISCONNECTED,null));
                             break;
 
                     }

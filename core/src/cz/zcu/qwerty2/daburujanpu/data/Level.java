@@ -94,8 +94,15 @@ public class Level {
         for (int i=0;i<SEED_LENGTH;i++) {
             r[i] = ran.nextInt(STEPS_TYPE_COUNT - 2) + 2;
         }
+        return r;
+    }
 
-
+    public static int[] voidlevel() {
+        int[] r = new int[SEED_LENGTH];
+        r[0] = FULL_STEP;
+        for (int i=1;i<SEED_LENGTH;i++) {
+            r[i] = EMPTY_STEP;
+        }
         return r;
     }
 
