@@ -52,7 +52,7 @@ public class NetService implements Runnable {
                         }
                         len +=a;
                     }
-                    Logging.writeline("I "+String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]) + ": "+new String(buffer));
+//                    Logging.writeline("I "+String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]) + ": "+new String(buffer));
                     publishResult(Command.fromString(new String(buffer)));
                 } catch (SocketException e) {
                     connected = false;
@@ -110,7 +110,7 @@ public class NetService implements Runnable {
             } else return false;
 
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
         }
     }
@@ -139,7 +139,7 @@ public class NetService implements Runnable {
                         int size = buffer.length;
                         size_buffer[0] = (byte)(size / 256);
                         size_buffer[1] = (byte)(size % 256);
-                        Logging.writeline("O "+String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]) + ": "+new String(buffer));
+//                        Logging.writeline("O "+String.format("%02x%02x", (int) size_buffer[0],size_buffer[1]) + ": "+new String(buffer));
                         try {
                             outputStream.write(size_buffer,0,size_buffer.length);
                             outputStream.write(buffer,0,buffer.length);

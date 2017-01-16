@@ -13,10 +13,10 @@ public class GamePreferences {
     private static final String PREF_RECONNECT_ID = "reconnect_id";
 
     private static final String DEFAULT_PLAYER_NAME = "player";
-    private static final String DEFAULT_SERVER_ADDRESS = "127.0.0.1";
+    private static final String DEFAULT_SERVER_ADDRESS = "alice-rabbit.pilsfree.net";
     public static final int DEFAULT_RECONNECT_ID = -1;
 
-    private static final int DEFAULT_PORT = 1234;
+    private static final int DEFAULT_PORT = 5001;
     private static final int MIN_PORT = 0;
     private static final int MAX_PORT = 65535;
 

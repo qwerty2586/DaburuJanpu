@@ -1,7 +1,6 @@
 package cz.zcu.qwerty2.daburujanpu.data;
 
 
-import java.util.Arrays;
 
 import cz.zcu.qwerty2.daburujanpu.net.Command;
 
@@ -57,7 +56,10 @@ public class Player {
                 "" + speedx,
                 "" + speedy,
                 "" + maxstep};
-        return String.join("" + Command.DEFAULT_DELIMITER, Arrays.asList(str_arr));
+
+        String r = str_arr[0];
+        for (int i=1;i<str_arr.length;i++)r = r + Command.DEFAULT_DELIMITER + str_arr[i];
+        return r;
     }
 
     public void deserialize(String s) {

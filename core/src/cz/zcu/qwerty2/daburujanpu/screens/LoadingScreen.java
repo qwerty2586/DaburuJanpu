@@ -59,13 +59,13 @@ public class LoadingScreen implements Screen {
     };
 
     private Stage stage;
-    private DaburuJanpu game;
+    final private DaburuJanpu game;
     private Label label;
     private int situation;
     private TextButton closeButton;
     private Table table;
 
-    public LoadingScreen(DaburuJanpu game, int situation, Command sendCommand) {
+    public LoadingScreen(final DaburuJanpu game, int situation, Command sendCommand) {
         this.game = game;
         this.situation = situation;
 
