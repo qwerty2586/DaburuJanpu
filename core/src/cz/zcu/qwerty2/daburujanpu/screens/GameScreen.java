@@ -150,38 +150,15 @@ public class GameScreen implements Screen {
                 game.font.setColor(Color.WHITE);
 
             }
+            game.font.draw(game.batch, "GAME OVER - USE ESCAPE KEY TO LEAVE", 100, camerapos - (CAMERA_START_SHIFT - results.length+1) *game.font.getLineHeight());
 
         }
 
         Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
 
-        if (!disabled && myindex >= 0) {
-            Player me = players.get(myindex);
-            // uzivatelske vstupy
-            me.inputl = Gdx.input.isKeyPressed(Input.Keys.LEFT);
-            me.inputp = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
-            me.inputup = Gdx.input.isKeyPressed(Input.Keys.UP) ||
-                    Gdx.input.isKeyPressed(Input.Keys.SPACE);
-            me.nextFrame(level);
-            game.commandQueue.add(new Command(Command.MY_UPDATE).addArg(players.get(myindex).serialize()));
-
-        }
-
         game.batch.end();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            escaping = true;
-        } else {
-            if (escaping) {
-                if (startType == SINGLE_PLAYER) {
-                    game.setScreen(new MainMenuScreen(game)); // alternativa ke keyup, ktera je asi 10x kratsi
-                } else {
-                    GamePreferences.setReconnectId(GamePreferences.DEFAULT_RECONNECT_ID);
-                    game.commandQueue.add(new Command(Command.LEAVE_GAME));
-                    game.setScreen(new ServerScreen(game));
-                }
-            }
-        }
+        //NETWORKING
 
         if (startType == MULTI_PLAYER) {
             while (!game.resultQueue.isEmpty()) {
@@ -201,9 +178,11 @@ public class GameScreen implements Screen {
                                     i = players.get(j).fromArgs(c, i);  // pokud jsem mrvej muze mi server prepsat data
                                 } else {
                                     Player myStats = new Player();
+                                    int backup_i = i;
                                     i = myStats.fromArgs(c, i);
                                     if (myStats.dead) {                 // jinak jenom jistuju jesli nahodou nejsem mrtvej
-                                        players.get(myindex).dead = myStats.dead;
+                                        players.get(myindex).fromArgs(c, backup_i);
+                                        game.commandQueue.add(new Command(Command.MY_UPDATE).addArg(players.get(myindex).serialize()));
                                         disabled = true;
 
                                     }
@@ -258,6 +237,37 @@ public class GameScreen implements Screen {
                         }
                         break;
 
+                }
+            }
+        }
+
+
+        //INPUTY
+
+        if (!disabled && myindex >= 0) {
+            Player me = players.get(myindex);
+            // uzivatelske vstupy
+            me.inputl = Gdx.input.isKeyPressed(Input.Keys.LEFT);
+            me.inputp = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+            me.inputup = Gdx.input.isKeyPressed(Input.Keys.UP) ||
+                    Gdx.input.isKeyPressed(Input.Keys.SPACE);
+            me.nextFrame(level);
+            game.commandQueue.add(new Command(Command.MY_UPDATE).addArg(players.get(myindex).serialize()));
+
+        }
+
+
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            escaping = true;
+        } else {
+            if (escaping) {
+                if (startType == SINGLE_PLAYER) {
+                    game.setScreen(new MainMenuScreen(game)); // alternativa ke keyup, ktera je asi 10x kratsi
+                } else {
+                    GamePreferences.setReconnectId(GamePreferences.DEFAULT_RECONNECT_ID);
+                    game.commandQueue.add(new Command(Command.LEAVE_GAME));
+                    game.setScreen(new ServerScreen(game));
                 }
             }
         }
