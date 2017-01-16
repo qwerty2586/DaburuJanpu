@@ -28,22 +28,27 @@ public class NetService implements Runnable {
         @Override
         public void run() {
             byte[] size_buffer =  new byte[2];
-            int len = 0;
+            int len;
+            int a = 0;
+            int size;
             while (true) {
                 try {
-                    len = inputStream.read(size_buffer, 0, size_buffer.length);
-                    if (len<0) {
-                        connected=false;
-                        return;
+                    len = 0;
+                    size  = 2;
+                    while (len<size) {
+                        a = inputStream.read(size_buffer, 0, size_buffer.length);
+                        if (a < 0) {
+                            throw new SocketException();
+                        }
+                        len +=a;
                     }
-                    int size = (size_buffer[0] & 0xFF) * 256 + (size_buffer[1] & 0xFF);
+                    size = (size_buffer[0] & 0xFF) * 256 + (size_buffer[1] & 0xFF);
                     final byte[] buffer = new byte[size];
                     len = 0;
                     while (len<size) {
-                        int a = inputStream.read(buffer, len, buffer.length - len);
-                        if (a<0) {
-                            connected=false;
-                            return;
+                        a = inputStream.read(buffer, len, buffer.length - len);
+                        if (a < 0) {
+                            throw new SocketException();
                         }
                         len +=a;
                     }
