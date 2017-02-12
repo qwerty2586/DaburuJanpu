@@ -59,6 +59,8 @@ public class NetService implements Runnable {
                     publishResult(new Command(Command.HW_DISCONNECTED));
                     return;
                 } catch (IOException e) {
+                    connected = false;
+                    publishResult(new Command(Command.HW_DISCONNECTED));
                     e.printStackTrace();
                 }
             }
