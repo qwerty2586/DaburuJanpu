@@ -27,15 +27,7 @@ public class GameScreen implements Screen {
     private static final int CAMERA_START_SHIFT = -200;
 
     final DaburuJanpu game;
-
-    Texture dropImage;
-    Texture bucketImage;
-
     OrthographicCamera camera;
-    Rectangle bucket;
-    Array<Rectangle> raindrops;
-    long lastDropTime;
-    int dropsGathered;
     private int startType;
     private Level level = null;
     private TextureAtlas stepAtlas;

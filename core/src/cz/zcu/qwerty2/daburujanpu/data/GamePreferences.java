@@ -32,8 +32,9 @@ public class GamePreferences {
     }
 
     public static void setPrefPlayerName (String name) {
-        getPrefs().putString(PREF_PLAYER_NAME,name);
-        getPrefs().flush();
+        Preferences prefs = getPrefs();
+        prefs.putString(PREF_PLAYER_NAME,name);
+        prefs.flush();
     }
 
     public static String getPrefServerAddress () {
@@ -41,8 +42,9 @@ public class GamePreferences {
     }
 
     public static void setPrefServerAddress (String address) {
-        getPrefs().putString(PREF_SERVER_ADDRESS,address);
-        getPrefs().flush();
+        Preferences prefs = getPrefs();
+        prefs.putString(PREF_SERVER_ADDRESS,address);
+        prefs.flush();
     }
 
     public static int getPrefPort () {
@@ -50,13 +52,15 @@ public class GamePreferences {
     }
 
     public static void setPrefPort (int port) {
-        getPrefs().putInteger(PREF_PORT,port);
-        getPrefs().flush();
+        Preferences prefs = getPrefs();
+        prefs.putInteger(PREF_PORT,port);
+        prefs.flush();
     }
 
     public static void setReconnectId (int id) {
-        getPrefs().putInteger(PREF_RECONNECT_ID,id);
-        getPrefs().flush();
+        Preferences prefs = getPrefs();
+        prefs.putInteger(PREF_RECONNECT_ID,id);
+        prefs.flush();
     }
     public static int getReconnectId () {
         return getPrefs().getInteger(PREF_RECONNECT_ID,DEFAULT_RECONNECT_ID);

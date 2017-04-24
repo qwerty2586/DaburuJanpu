@@ -1,18 +1,22 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
+import sun.rmi.runtime.Log;
+
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
@@ -30,17 +34,21 @@ public class SplashScreen implements Screen {
     DaburuJanpu game;
     Image favImage;
     Image daburuImage;
+    Viewport viewport;
 
 
     public SplashScreen(DaburuJanpu game) {
         this.game = game;
 
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera = new OrthographicCamera(640,480);
+        viewport = new FillViewport(640,480,camera);
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        Gdx.app.debug("width",""+Gdx.graphics.getWidth());
+        Gdx.app.debug("height",""+Gdx.graphics.getHeight());
 
         fav = new Texture(Gdx.files.internal("fav.png"));
         daburu = new Texture(Gdx.files.internal("daburu.png"));
-        stage = new Stage();
+        stage = new Stage(viewport);
         favImage = new Image(fav);
         favImage.setPosition(stage.getWidth()/2- favImage.getWidth()/2,stage.getHeight()/2- favImage.getHeight()/2);
         daburuImage = new Image(daburu);
@@ -79,7 +87,7 @@ public class SplashScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width,height);
     }
 
     @Override
