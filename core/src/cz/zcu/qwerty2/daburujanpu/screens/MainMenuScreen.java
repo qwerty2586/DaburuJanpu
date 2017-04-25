@@ -10,21 +10,24 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
 import cz.zcu.qwerty2.daburujanpu.net.Command;
 
 public class MainMenuScreen implements Screen {
 
+
     private DaburuJanpu game;
     private Table table;
+    private final FillViewport viewport;
     private Stage stage;
 
     public MainMenuScreen(final DaburuJanpu game) {
         this.game = game;
 
-        OrthographicCamera camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        OrthographicCamera camera = new OrthographicCamera(640,480);
+        viewport = new FillViewport(640,480,camera);
         TextButton singlePlayerButton = new TextButton("Single player", game.skin);
         TextButton multiPlayerButton = new TextButton("Multiplayer player", game.skin);
         TextButton settingsButton = new TextButton("Settings", game.skin);
@@ -69,7 +72,15 @@ public class MainMenuScreen implements Screen {
         table.add(settingsButton).uniform().fill();
 
 
-        stage = new Stage();
+        stage = new Stage(viewport) {
+            @Override
+            public boolean keyUp(int keyCode) {
+                if (keyCode== Input.Keys.BACK || keyCode == Input.Keys.ESCAPE) {
+                    Gdx.app.exit();
+                }
+                return super.keyUp(keyCode);
+            }
+        };
 
 
     }
@@ -80,6 +91,7 @@ public class MainMenuScreen implements Screen {
         stage.clear();
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCatchBackKey(true);
 
 
     }
@@ -90,14 +102,11 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            game.dispose();
-        }
     }
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width,height);
     }
 
     @Override

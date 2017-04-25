@@ -1,6 +1,7 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
 import cz.zcu.qwerty2.daburujanpu.net.Command;
@@ -58,6 +60,7 @@ public class LoadingScreen implements Screen {
 
     };
 
+    private final FillViewport viewport;
     private Stage stage;
     final private DaburuJanpu game;
     private Label label;
@@ -69,9 +72,9 @@ public class LoadingScreen implements Screen {
         this.game = game;
         this.situation = situation;
 
-        OrthographicCamera camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
-        stage = new Stage();
+        OrthographicCamera camera = new OrthographicCamera(640,480);
+        viewport = new FillViewport(640,480,camera);
+
 
         label = new Label(DEFAULT_TEXT[situation], game.skin);
         table = new Table(game.skin);
@@ -90,6 +93,20 @@ public class LoadingScreen implements Screen {
         }
         table.row();
         table.add(closeButton).center();
+
+        stage = new Stage(viewport) {
+            @Override
+            public boolean keyUp(int keyCode) {
+                if (keyCode== Input.Keys.BACK || keyCode == Input.Keys.ESCAPE) {
+                    InputEvent event = new InputEvent();
+                    event.setType(InputEvent.Type.touchDown);
+                    closeButton.fire(event);
+                    event.setType(InputEvent.Type.touchUp);
+                    closeButton.fire(event);
+                }
+                return super.keyUp(keyCode);
+            }
+        };
 
         if (sendCommand!=null) game.commandQueue.add(sendCommand);
     }
@@ -175,7 +192,8 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        label.setPosition(Gdx.graphics.getWidth() / 2f - label.getWidth() / 2f, Gdx.graphics.getHeight() / 2f - label.getHeight() / 2f);
+        //label.setPosition(Gdx.graphics.getWidth() / 2f - label.getWidth() / 2f, Gdx.graphics.getHeight() / 2f - label.getHeight() / 2f);
+        viewport.update(width,height);
     }
 
     @Override

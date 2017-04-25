@@ -1,6 +1,7 @@
 package cz.zcu.qwerty2.daburujanpu.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
 import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
@@ -19,6 +21,7 @@ import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
 public class SettingsScreen implements Screen {
 
 
+    private final FillViewport viewport;
     DaburuJanpu game;
     OrthographicCamera camera;
     Table table;
@@ -32,8 +35,10 @@ public class SettingsScreen implements Screen {
     public SettingsScreen(final DaburuJanpu game) {
         this.game = game;
 
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        OrthographicCamera camera = new OrthographicCamera(640,480);
+        viewport = new FillViewport(640,480,camera);
+
+
 
 
         nameText = new TextField(GamePreferences.getPrefPlayerName(),game.skin);
@@ -81,7 +86,15 @@ public class SettingsScreen implements Screen {
         table.row();
         table.add(backButton).uniform().fill();
         table.add(saveButton).uniform().fill();
-        stage = new Stage();
+        stage = new Stage(viewport) {
+            @Override
+            public boolean keyUp(int keyCode) {
+                if (keyCode== Input.Keys.BACK || keyCode == Input.Keys.ESCAPE) {
+                    game.setScreen(new MainMenuScreen(game));
+                }
+                return super.keyUp(keyCode);
+            }
+        };
 
 
     }
@@ -92,6 +105,7 @@ public class SettingsScreen implements Screen {
         stage.clear();
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCatchBackKey(true);
 
 
     }
@@ -106,7 +120,7 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width,height);
     }
 
     @Override

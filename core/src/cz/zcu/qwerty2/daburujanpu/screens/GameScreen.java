@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.ArrayList;
 
@@ -27,6 +29,7 @@ public class GameScreen implements Screen {
     private static final int CAMERA_START_SHIFT = -200;
 
     final DaburuJanpu game;
+    private final FitViewport viewport;
     OrthographicCamera camera;
     private int startType;
     private Level level = null;
@@ -38,7 +41,7 @@ public class GameScreen implements Screen {
     private int myindex = -1;
     Stage stage; // jenom pro vyblokovani vstupu v ostatnich screenach
     private boolean escaping = false;
-    int camerapos = 0, cameramulti=0;
+    int camerapos = 0, cameramulti = 0;
     int round = -1;
     Result[] results = null;
 
@@ -68,9 +71,20 @@ public class GameScreen implements Screen {
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 640, 480);
-        camera.translate(0, CAMERA_START_SHIFT);
 
-        stage = new Stage();
+        viewport = new FitViewport(640, 480, camera);
+
+
+        stage = new Stage(viewport) {
+            @Override
+            public boolean keyUp(int keyCode) {
+                if (keyCode == Input.Keys.BACK || keyCode == Input.Keys.ESCAPE) {
+                    escaping = true;
+                }
+                return super.keyUp(keyCode);
+            }
+        };
+        camera.translate(0, CAMERA_START_SHIFT);
 
         game.commandQueue.add(new Command(Command.READY_FOR_GAME_INFO));
 
@@ -89,14 +103,11 @@ public class GameScreen implements Screen {
             camerapos += shift;
         }
 
-        if (startType == MULTI_PLAYER && camerapos < cameramulti)
-        {
-            int shift = (cameramulti - camerapos) /4;
+        if (startType == MULTI_PLAYER && camerapos < cameramulti) {
+            int shift = (cameramulti - camerapos) / 4;
             camera.translate(0, shift);
             camerapos += shift;
         }
-
-
 
 
         camera.update();
@@ -119,7 +130,7 @@ public class GameScreen implements Screen {
         //kresleni hracu
 
 
-        if (players.size()>0) {
+        if (players.size() > 0) {
             for (int i = 0; i < players.size(); i++) {
                 game.batch.draw(gearAtlasRegions.get(players.get(i).color), players.get(i).x, players.get(i).y,
                         Player.SPRITE_SIZE / 2, Player.SPRITE_SIZE / 2, Player.SPRITE_SIZE, Player.SPRITE_SIZE, 1, 1, -players.get(i).x);
@@ -129,20 +140,20 @@ public class GameScreen implements Screen {
         }
 
         //kreseni vysledkove listiny
-        if (results!=null) {
+        if (results != null) {
             game.font.setColor(Color.WHITE);
             game.font.draw(game.batch, "SCORE", 100, camerapos - CAMERA_START_SHIFT + game.font.getLineHeight());
             game.font.draw(game.batch, "MAX STEP", 200, camerapos - CAMERA_START_SHIFT + game.font.getLineHeight());
             game.font.draw(game.batch, "NAME", 300, camerapos - CAMERA_START_SHIFT + game.font.getLineHeight());
             for (int i = 0; i < results.length; i++) {
-                game.font.draw(game.batch, ""+results[i].score, 100, camerapos - CAMERA_START_SHIFT - i*game.font.getLineHeight());
-                game.font.draw(game.batch, ""+results[i].maxStep, 200, camerapos - CAMERA_START_SHIFT - i*game.font.getLineHeight());
+                game.font.draw(game.batch, "" + results[i].score, 100, camerapos - CAMERA_START_SHIFT - i * game.font.getLineHeight());
+                game.font.draw(game.batch, "" + results[i].maxStep, 200, camerapos - CAMERA_START_SHIFT - i * game.font.getLineHeight());
                 if (results[i].left) game.font.setColor(Color.RED);
-                game.font.draw(game.batch, ""+results[i].name, 300, camerapos - CAMERA_START_SHIFT - i*game.font.getLineHeight());
+                game.font.draw(game.batch, "" + results[i].name, 300, camerapos - CAMERA_START_SHIFT - i * game.font.getLineHeight());
                 game.font.setColor(Color.WHITE);
 
             }
-            game.font.draw(game.batch, "GAME OVER - USE ESCAPE KEY TO LEAVE", 100, camerapos - (CAMERA_START_SHIFT - results.length+1) *game.font.getLineHeight());
+            game.font.draw(game.batch, "GAME OVER - USE ESCAPE KEY TO LEAVE", 100, camerapos - (CAMERA_START_SHIFT - results.length + 1) * game.font.getLineHeight());
 
         }
 
@@ -159,10 +170,10 @@ public class GameScreen implements Screen {
                     case Command.GAME_INFO:
                         int i = 0;
                         int count = c.argInt(i++);
-                        if(players.size() != count) {
+                        if (players.size() != count) {
                             players.clear();
                             for (int j = 0; j < count; j++) players.add(new Player());
-                            myindex=-1; // prepocteme pole
+                            myindex = -1; // prepocteme pole
                         }
                         for (int j = 0; j < count; j++) {
                             if (j == myindex) {
@@ -202,19 +213,19 @@ public class GameScreen implements Screen {
                         game.commandQueue.add(new Command(Command.ROUND_LOADED)); //dame vedet ze sme nacetli
 
                         break;
-                    case Command.ROUND_START :
+                    case Command.ROUND_START:
                         disabled = false;
                         round++;
                         break;
-                    case Command.GAME_NEW_ROUND :
-                        players.get(myindex).dead =false;
+                    case Command.GAME_NEW_ROUND:
+                        players.get(myindex).dead = false;
                         camera.translate(0, -camerapos);
                         camerapos = 0;
                         game.commandQueue.add(new Command(Command.ROUND_LOADED));
                         break;
 
                     case Command.HW_DISCONNECTED:
-                        game.setScreen(new LoadingScreen(game,LoadingScreen.SITUATION_DISCONNECTED,null));
+                        game.setScreen(new LoadingScreen(game, LoadingScreen.SITUATION_DISCONNECTED, null));
                         break;
                     case Command.GAME_RESULT:
                         int u = 0;
@@ -239,44 +250,59 @@ public class GameScreen implements Screen {
         if (!disabled && myindex >= 0) {
             Player me = players.get(myindex);
             // uzivatelske vstupy
-            me.inputl = Gdx.input.isKeyPressed(Input.Keys.LEFT);
-            me.inputp = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
+            boolean up = false;
+            boolean left = false;
+            boolean right = false;
+            for (int i = 0; i < 10; i++) {
+                if (Gdx.input.isTouched(i)) {
+                    int x = Gdx.input.getX(i);
+                    int y = Gdx.input.getY(i);
+                    Gdx.app.debug("touch", "" + i + " " + x + ":" + y);
+                    if (y < Gdx.graphics.getHeight() / 2) {
+                        up = true;
+                    } else {
+                        if (x < Gdx.graphics.getHeight() / 2) {
+                            left = true;
+                        } else {
+                            right = true;
+                        }
+                    }
+                }
+            }
+            me.inputl = Gdx.input.isKeyPressed(Input.Keys.LEFT) || left;
+            me.inputp = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || right;
             me.inputup = Gdx.input.isKeyPressed(Input.Keys.UP) ||
-                    Gdx.input.isKeyPressed(Input.Keys.SPACE);
+                    Gdx.input.isKeyPressed(Input.Keys.SPACE) || up;
             me.nextFrame(level);
             game.commandQueue.add(new Command(Command.MY_UPDATE).addArg(players.get(myindex).serialize()));
 
         }
 
 
-
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            escaping = true;
-        } else {
-            if (escaping) {
-                if (startType == SINGLE_PLAYER) {
-                    game.setScreen(new MainMenuScreen(game)); // alternativa ke keyup, ktera je asi 10x kratsi
-                } else {
-                    GamePreferences.setReconnectId(GamePreferences.DEFAULT_RECONNECT_ID);
-                    game.commandQueue.add(new Command(Command.LEAVE_GAME));
-                    game.setScreen(new ServerScreen(game));
-                }
+        if (escaping) {
+            if (startType == SINGLE_PLAYER) {
+                game.setScreen(new MainMenuScreen(game)); // alternativa ke keyup, ktera je asi 10x kratsi
+            } else {
+                GamePreferences.setReconnectId(GamePreferences.DEFAULT_RECONNECT_ID);
+                game.commandQueue.add(new Command(Command.LEAVE_GAME));
+                game.setScreen(new ServerScreen(game));
             }
         }
-
-
 
 
     }
 
     @Override
     public void resize(int width, int height) {
+        viewport.update(width, height);
     }
 
     @Override
     public void show() {
         stage.clear();
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCatchBackKey(true);
+
     }
 
     @Override

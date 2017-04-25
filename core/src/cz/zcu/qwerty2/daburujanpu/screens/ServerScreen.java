@@ -2,9 +2,11 @@ package cz.zcu.qwerty2.daburujanpu.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -17,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 
 import java.util.ArrayList;
 
@@ -24,7 +27,11 @@ import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
 import cz.zcu.qwerty2.daburujanpu.data.GamePreferences;
 import cz.zcu.qwerty2.daburujanpu.net.Command;
 
+import static cz.zcu.qwerty2.daburujanpu.util.Consts.DEF_HEIGHT;
+import static cz.zcu.qwerty2.daburujanpu.util.Consts.DEF_WIDTH;
+
 public class ServerScreen implements Screen {
+    private final FillViewport viewport;
     DaburuJanpu game;
     Table mainTable;
     List list;
@@ -165,7 +172,19 @@ public class ServerScreen implements Screen {
         mainTable.add(backButton).uniform().fill().spaceTop(30);
         mainTable.add(serverStatsButton).fill().spaceTop(30);
         mainTable.add(reconnectButton).fill().spaceTop(30);
-        stage = new Stage();
+
+        OrthographicCamera camera = new OrthographicCamera(DEF_WIDTH,DEF_HEIGHT);
+        viewport = new FillViewport(DEF_WIDTH,DEF_HEIGHT,camera);
+        stage = new Stage(viewport) {
+            @Override
+            public boolean keyUp(int keyCode) {
+                if (keyCode== Input.Keys.BACK || keyCode == Input.Keys.ESCAPE) {
+                    backToMenu();
+                }
+                return super.keyUp(keyCode);
+            }
+        };
+
         String name = GamePreferences.getPrefPlayerName().replaceAll(";"," ");
         if (name.length()==0) name = " ";
         game.commandQueue.add(new Command(Command.SET_PLAYER_NAME).addArg(name));
@@ -216,6 +235,7 @@ public class ServerScreen implements Screen {
         stage.clear();
         stage.addActor(mainTable);
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCatchBackKey(true);
 
 
     }
@@ -248,9 +268,6 @@ public class ServerScreen implements Screen {
             if (c.code == Command.GAME_RECONNECT_DO_RESULT) {
                 if (c.argInt(0)==1) game.setScreen(new GameScreen(game,GameScreen.MULTI_PLAYER));
             }
-
-
-
         }
     }
 

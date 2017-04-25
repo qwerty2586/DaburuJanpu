@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -17,7 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import cz.zcu.qwerty2.daburujanpu.DaburuJanpu;
@@ -26,6 +29,7 @@ import cz.zcu.qwerty2.daburujanpu.data.Player;
 import cz.zcu.qwerty2.daburujanpu.net.Command;
 
 public class LobbyScreen implements Screen {
+
     private DaburuJanpu game;
     private Table mainTable, playersTable;
 
@@ -36,6 +40,7 @@ public class LobbyScreen implements Screen {
     private int playerCount = -1;
     private TextField chatField;
     private TextButton backButton, chatButton, colorButton, readyButton;
+    private final FillViewport viewport;
     private Stage stage;
 
     ArrayList<Player> players = new ArrayList<Player>();
@@ -146,7 +151,18 @@ public class LobbyScreen implements Screen {
         mainTable.add(backButton).fill().spaceTop(30);
         mainTable.add(colorButton).fill().spaceTop(30);
         mainTable.add(readyButton).fill().spaceTop(30);
-        stage = new Stage();
+
+        OrthographicCamera camera = new OrthographicCamera(640,480);
+        viewport = new FillViewport(640,480,camera);
+        stage = new Stage(viewport) {
+            @Override
+            public boolean keyUp(int keyCode) {
+                if (keyCode== Input.Keys.BACK || keyCode == Input.Keys.ESCAPE) {
+                    backToServer();
+                }
+                return super.keyUp(keyCode);
+            }
+        };
 
         sendRefresh();
 
@@ -196,7 +212,7 @@ public class LobbyScreen implements Screen {
         stage.clear();
         stage.addActor(mainTable);
         Gdx.input.setInputProcessor(stage);
-
+        Gdx.input.setCatchBackKey(true);
 
     }
 
@@ -225,7 +241,9 @@ public class LobbyScreen implements Screen {
                     break;
             }
         }
+
     }
+
 
 
     private void updateLobbyInfo(Command c) {
