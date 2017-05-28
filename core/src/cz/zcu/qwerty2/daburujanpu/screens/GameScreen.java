@@ -6,12 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.ArrayList;
@@ -37,6 +34,8 @@ public class GameScreen implements Screen {
     private Array<TextureAtlas.AtlasRegion> stepAtlasRegions;
     private TextureAtlas gearAtlas;
     private Array<TextureAtlas.AtlasRegion> gearAtlasRegions;
+    private TextureAtlas brickAtlas;
+    private Array<TextureAtlas.AtlasRegion> brickAtlasRegions;
     ArrayList<Player> players;
     private int myindex = -1;
     Stage stage; // jenom pro vyblokovani vstupu v ostatnich screenach
@@ -64,10 +63,12 @@ public class GameScreen implements Screen {
             GamePreferences.setReconnectId(game.netService.myId);
         }
 
-        stepAtlas = new TextureAtlas(Gdx.files.internal("steps/atlas_steps32.atlas"));
+        stepAtlas = new TextureAtlas(Gdx.files.internal("steps/atlas_steps32x2.atlas"));
         stepAtlasRegions = stepAtlas.getRegions();
-        gearAtlas = new TextureAtlas(Gdx.files.internal("gears/atlas_gears32.atlas"));
+        gearAtlas = new TextureAtlas(Gdx.files.internal("gears/atlas_gears32x2.atlas"));
         gearAtlasRegions = gearAtlas.getRegions();
+        brickAtlas = new TextureAtlas(Gdx.files.internal("brix/brix.atlas"));
+        brickAtlasRegions = brickAtlas.getRegions();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 640, 480);
@@ -93,7 +94,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0.2f, 1);
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (startType == SINGLE_PLAYER && camerapos < players.get(myindex).y) //hejbu si sam kamerou
@@ -114,6 +115,15 @@ public class GameScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
+
+        // kresleni cihel
+        for (int i = ((camerapos + CAMERA_START_SHIFT) / Level.STEP_DISTANCE) -3 ; i < ((camerapos + CAMERA_START_SHIFT + 100 + Level.SCREEN_HEIGHT) / Player.SPRITE_SIZE/2); i++) {
+            for (int j = 0; j < Level.STEPS_WIDTH/2; j++) {
+                    game.batch.draw(brickAtlasRegions.get(0),j*32*2,(camerapos/5 %Player.SPRITE_SIZE*2) +i*Player.SPRITE_SIZE*2,Player.SPRITE_SIZE*2,Player.SPRITE_SIZE*2);
+            }
+        }
+
+
         //kresleni mapy
         for (int i = ((camerapos + CAMERA_START_SHIFT) / Level.STEP_DISTANCE); i < ((camerapos + CAMERA_START_SHIFT + 100 + Level.SCREEN_HEIGHT) / Level.STEP_DISTANCE); i++) {
             int step = level.getStep(i);
@@ -121,7 +131,7 @@ public class GameScreen implements Screen {
             for (int j = 0; j < Level.STEPS_WIDTH; j++) {
                 int type = Level.STEPS[step][j];
                 if (type > 0) {
-                    game.batch.draw(stepAtlasRegions.get(color * 3 + type - 1), j * 32, i * Level.STEP_DISTANCE - 32);
+                    game.batch.draw(stepAtlasRegions.get(color * 3 + type - 1), j * 32, i * Level.STEP_DISTANCE - Player.SPRITE_SIZE,Player.SPRITE_SIZE,Player.SPRITE_SIZE);
                 }
             }
         }
@@ -244,6 +254,18 @@ public class GameScreen implements Screen {
             }
         }
 
+        if (startType == SINGLE_PLAYER) {
+            Player me = players.get(myindex);
+            if (me.y < camerapos - Level.SCREEN_HEIGHT/2) {
+                camera.translate(0, -camerapos);
+                camerapos = 0;
+                me.maxstep = 0;
+                me.x=0;
+                me.y=0;
+                me.speedx =0;
+                me.speedy =0;
+            }
+        }
 
         //INPUTY
 
@@ -261,7 +283,7 @@ public class GameScreen implements Screen {
                     if (y < Gdx.graphics.getHeight() / 2) {
                         up = true;
                     } else {
-                        if (x < Gdx.graphics.getHeight() / 2) {
+                        if (x < Gdx.graphics.getWidth() / 2) {
                             left = true;
                         } else {
                             right = true;

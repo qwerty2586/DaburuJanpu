@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:3.0.0-alpha1'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.2.0'
     }
 }
@@ -93,6 +93,7 @@ project(":ios") {
     }
 }
 
+/*
 project(":html") {
     apply plugin: "gwt"
     apply plugin: "war"
@@ -107,6 +108,7 @@ project(":html") {
         compile "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
     }
 }
+*/
 
 project(":core") {
     apply plugin: "java"
