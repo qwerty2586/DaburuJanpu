@@ -43,6 +43,7 @@ public class GameScreen implements Screen {
     int camerapos = 0, cameramulti = 0;
     int round = -1;
     Result[] results = null;
+    int controlType;
 
 
     private boolean disabled = false;
@@ -51,10 +52,11 @@ public class GameScreen implements Screen {
         this.game = game;
         this.startType = startType;
 
+        controlType = GamePreferences.getCType();
         if (this.startType == SINGLE_PLAYER) {
             level = new Level(Level.generateRandomSeed());
             players = new ArrayList<Player>();
-            players.add(new Player(0, GamePreferences.getPrefPlayerName(), 0, true));
+            players.add(new Player(0, GamePreferences.getPrefPlayerName(), GamePreferences.getColor(), true));
             myindex = 0;
         } else { //MULTI
             players = new ArrayList<Player>();
@@ -117,9 +119,9 @@ public class GameScreen implements Screen {
 
 
         // kresleni cihel
-        for (int i = ((camerapos + CAMERA_START_SHIFT) / Level.STEP_DISTANCE) -3 ; i < ((camerapos + CAMERA_START_SHIFT + 100 + Level.SCREEN_HEIGHT) / Player.SPRITE_SIZE/2); i++) {
-            for (int j = 0; j < Level.STEPS_WIDTH/2; j++) {
-                    game.batch.draw(brickAtlasRegions.get(0),j*32*2,(camerapos/5 %Player.SPRITE_SIZE*2) +i*Player.SPRITE_SIZE*2,Player.SPRITE_SIZE*2,Player.SPRITE_SIZE*2);
+        for (int i = ((camerapos + CAMERA_START_SHIFT) / Level.STEP_DISTANCE) - 3; i < ((camerapos + CAMERA_START_SHIFT + 100 + Level.SCREEN_HEIGHT) / Player.SPRITE_SIZE / 2); i++) {
+            for (int j = 0; j < Level.STEPS_WIDTH / 2; j++) {
+                game.batch.draw(brickAtlasRegions.get(0), j * 32 * 2, (camerapos / 5 % Player.SPRITE_SIZE * 2) + i * Player.SPRITE_SIZE * 2, Player.SPRITE_SIZE * 2, Player.SPRITE_SIZE * 2);
             }
         }
 
@@ -131,7 +133,7 @@ public class GameScreen implements Screen {
             for (int j = 0; j < Level.STEPS_WIDTH; j++) {
                 int type = Level.STEPS[step][j];
                 if (type > 0) {
-                    game.batch.draw(stepAtlasRegions.get(color * 3 + type - 1), j * 32, i * Level.STEP_DISTANCE - Player.SPRITE_SIZE,Player.SPRITE_SIZE,Player.SPRITE_SIZE);
+                    game.batch.draw(stepAtlasRegions.get(color * 3 + type - 1), j * 32, i * Level.STEP_DISTANCE - Player.SPRITE_SIZE, Player.SPRITE_SIZE, Player.SPRITE_SIZE);
                 }
             }
         }
@@ -256,14 +258,14 @@ public class GameScreen implements Screen {
 
         if (startType == SINGLE_PLAYER) {
             Player me = players.get(myindex);
-            if (me.y < camerapos - Level.SCREEN_HEIGHT/2) {
+            if (me.y < camerapos - Level.SCREEN_HEIGHT / 2) {
                 camera.translate(0, -camerapos);
                 camerapos = 0;
                 me.maxstep = 0;
-                me.x=0;
-                me.y=0;
-                me.speedx =0;
-                me.speedy =0;
+                me.x = 0;
+                me.y = 0;
+                me.speedx = 0;
+                me.speedy = 0;
             }
         }
 
@@ -279,15 +281,36 @@ public class GameScreen implements Screen {
                 if (Gdx.input.isTouched(i)) {
                     int x = Gdx.input.getX(i);
                     int y = Gdx.input.getY(i);
-                    Gdx.app.debug("touch", "" + i + " " + x + ":" + y);
-                    if (y < Gdx.graphics.getHeight() / 2) {
-                        up = true;
-                    } else {
-                        if (x < Gdx.graphics.getWidth() / 2) {
-                            left = true;
-                        } else {
-                            right = true;
-                        }
+                    switch (controlType) {
+                        case 0:
+                            if (y < Gdx.graphics.getHeight() / 2) {
+                                up = true;
+                            } else {
+                                if (x < Gdx.graphics.getWidth() / 2) {
+                                    left = true;
+                                } else {
+                                    right = true;
+                                }
+                            }
+                            break;
+                        case 1:
+                            if (x<Gdx.graphics.getWidth() / 4) {
+                                left = true;
+                            } else if (x<Gdx.graphics.getWidth() / 2) {
+                                right = true;
+                            } else {
+                                up =true;
+                            }
+                            break;
+                        case 2:
+                            if (x<Gdx.graphics.getWidth() / 2) {
+                                up = true;
+                            } else if (x<Gdx.graphics.getWidth() / 4 * 3) {
+                                left = true;
+                            } else {
+                                right =true;
+                            }
+                            break;
                     }
                 }
             }
